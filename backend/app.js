@@ -45,11 +45,19 @@ app.post("/employees",(req,res)=>{
       res.status(200).json({message:"success"});
    });
    // res.status(200).json({message:"success",data:body});
-})
+});
 
-app.get('/login',(req,res)=>{
-   console.log(req,body);
-})
+app.post("/login",(req,res)=>{
+   const {body:{email,password}} = req;
+   const sql = "select * from employee_test where email = ? and password = ?"
+    db.query(sql,[email, password],(err,result)=>{
+      if(err){
+         console.log('error while try to fetch data from database',err);
+         return res.status(500).json({message:"failed",error:"can't fetch data from database"});
+      }
+      res.status(200).json({message:"success",data:result});
+   })
+});
 app.listen(port,()=>{
    console.log(`Server is running on port ${port}`)
 });
