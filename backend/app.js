@@ -1,9 +1,11 @@
 import express from 'express';
 import mysql from 'mysql2';
+import cors from "cors";
 const port = 4000;
 const app = express();
 
 app.use(express.json());
+app.use(cors({origin:"http://localhost:5173"}))
 // app.use(express.urlencoded({extended:true}));   
 const dbConfig = {
    host:"localhost",
@@ -23,7 +25,7 @@ app.get("/",(req,res)=>{
    res.send("hello world");
 });
 
-app.get("/employees",(req,res)=>{
+app.get("/employee",(req,res)=>{
    const sql = "select * from employee_test";
    db.query(sql,(err,result)=>{
       if(err){
@@ -33,11 +35,13 @@ app.get("/employees",(req,res)=>{
       res.send(result);
    });
 })
-app.post("/employees",(req,res)=>{
+app.post("/employee",(req,res)=>{
+   console.log(req.body);
 
-   const {body:{id,first_name,last_name,email,password}} = req;
-   const sql = "insert into employee_test values(?,?,?,?,?)";
-   db.query(sql,[id,first_name,last_name,email,password],(err)=>{
+   const {body:{first_name,last_name,email,password}} = req;
+   const value = [first_name, last_name, email, password];
+   const sql = "insert into employee_test(first_name, last_name, email, password) values(?,?,?,?)";
+   db.query(sql,value,(err)=>{
       if(err){
          console.log(err);
          return res.status(500).json({message:"error while try to insert data into dtatabase",status:"failed"});
@@ -48,6 +52,7 @@ app.post("/employees",(req,res)=>{
 });
 
 app.post("/login",(req,res)=>{
+   console.log(req.body)
    const {body:{email,password}} = req;
    const sql = "select * from employee_test where email = ? and password = ?"
     db.query(sql,[email, password],(err,result)=>{
